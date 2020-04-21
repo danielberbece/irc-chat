@@ -1,0 +1,2 @@
+sanic
+mysql-connector-python

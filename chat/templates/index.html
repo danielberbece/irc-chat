@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Docker-Chat</title>
+    <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            namespace = '/chat';
+            var socket = io(namespace);
+
+            // Event handler for server sent data.
+            // The callback function is invoked whenever the server emits data
+            // to the client. The data is then displayed in the "Received"
+            // section of the page.
+            socket.on('log', function(msg, cb) {
+                if (typeof msg.username !== 'undefined') {
+                  $('#log').append('<br>' + $('<div/>').text(' ' + msg.username + ': ' + msg.data).html());
+                } else {
+                  $('#log').append('<br>' + $('<div/>').text(msg.data).html());
+                }
+                if (cb)
+                    cb();
+            });
+
+            socket.on('username_response', function(msg, cb) {
+                if (msg.result == 'success') {
+                  $('#username_form').remove();
+                  $('#chat_content').show();
+                } else {
+                  alert('Username is already taken');
+                }
+                if (cb)
+                    cb();
+            });
+
+            // Handlers for the different forms in the page.
+            // These accept data from the user and send it to the server in a
+            // variety of ways
+            $('form#emit').submit(function(event) {
+                socket.emit('my_event', {data: $('#emit_data').val()});
+                $('#emit_data').val('');
+                return false;
+            });
+            
+            $('form#username_form').submit(function(event) {
+                socket.emit('set_username', {username: $('#set_username').val()});
+                return false;
+            });
+
+            socket.on('on_connect', function(msg, cb) {
+                if (typeof msg.log !== 'undefined') {
+                  $('#log').append('<br>' + $('<div/>').text(msg.log).html());
+                }
+                $("#room").empty().end();
+                if (typeof msg.rooms !== 'undefined') {
+                  var x = document.getElementById("room");
+                  for (var i = 0; i < msg.rooms.length; i++) {
+                    var option = document.createElement("option");
+                    option.text = msg.rooms[i];
+                    x.add(option);
+                  }
+                }
+            });
+
+            $('select#room').on('change', function() {
+                socket.emit('join_room', {room: $('#room').val()});
+                $('#log').empty();
+            });
+
+            $('#set_username').on('keypress', function(e) {
+              if (e.which == 32)
+                return false;
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>IRC Chat</h1>
+    <form id="username_form" method="POST" action="#">
+        <input type="text" name="set_username" id="set_username" placeholder="Koala32">
+        <input type="submit" value="Set username">
+    </form>
+
+    <div id="chat_content" style="display: none;">
+      <label for="room">Choose a room:</label>
+      <select id="room"></select>
+      <h2>Send:</h2>
+      <form id="emit" method="POST" action="#">
+          <input type="text" name="emit_data" id="emit_data" placeholder="Message">
+          <input type="submit" value="Send">
+      </form>
+      <h2>Received:</h2>
+      <div id="log"></div>
+    </div>
+</body>
+</html>
