@@ -14,8 +14,6 @@ services:
 
   api:
     image: danielberbece/api:latest
-    ports:
-      - 8081:8081
     depends_on:
       - db
     networks:
@@ -25,8 +23,6 @@ services:
   mosquitto:
     image: eclipse-mosquitto
     hostname: mosquitto
-    ports:
-      - 1883:1883
     networks:
       - mqtt_net
 
@@ -59,8 +55,6 @@ services:
       - ./prometheus/config:/etc/prometheus/
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-    ports:
-      - 9090:9090
     networks:
       - prom_net
 
@@ -68,8 +62,6 @@ services:
     image: prom/node-exporter:latest
     deploy:
       mode: global
-    ports:
-      - 9100:9100
     networks:
       - prom_net
 
@@ -80,23 +72,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=secret
     networks:
-      - mqtt_net
-      - db_net
-      - api_front_net
       - prom_net
-
-  # For testing purposes
-  phpmyadmin:
-    depends_on:
-      - db
-    image: phpmyadmin/phpmyadmin
-    ports:
-      - 8089:80
-    environment:
-      PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: secret
-    networks:
-      - db_net
 
 networks:
   mqtt_net:
