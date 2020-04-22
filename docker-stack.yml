@@ -74,7 +74,7 @@ services:
       - prom_net
 
   grafana:
-    image: grafana/grafana
+    image: danielberbece/grafana-chat:latest
     ports:
       - 3000:3000
     environment:
