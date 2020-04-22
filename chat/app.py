@@ -3,6 +3,8 @@ from threading import Lock
 import eventlet
 from flask import Flask, render_template, session, request, \
     copy_current_request_context
+# from flask_login import LoginManager, UserMixin, current_user, login_user, \
+#     logout_user
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 from flask_mqtt import Mqtt
@@ -26,10 +28,28 @@ app.config['MQTT_BROKER_URL'] = 'mosquitto'
 app.config['MQTT_BROKER_PORT'] = 1883
 
 mqtt = Mqtt(app)
+# login_manager = LoginManager(app)
 socketio = SocketIO(app, async_mode=async_mode)
 
 metrics = PrometheusMetrics(app)
 metrics.info('chat_info', 'Application info', version='1.0.3')
+
+# class User(UserMixin, object):
+#     user_mapping = {}
+#     def __init__(self, id=None name=None, room=None):
+#         self.id = id
+#         self.name = name
+#         self.room = room
+#         user_mapping[id] = self
+    
+#     @staticmethod
+#     def get(id):
+#         return user_mapping[id]
+
+
+# @login.user_loader
+# def load_user(id):
+#     return User.get(id)
 
 @app.route('/')
 def index():
@@ -76,7 +96,8 @@ def set_username(message):
     if response.json()['result'] == 'success':
         data = {'data': 'New username is ' + message['username'], 'result': 'success'}
 
-    emit('username_response', data, room=rooms()[0])
+    emit('username_response', data)
+    leave_room(request.sid)
 
 
 @socketio.on('connect', namespace='/chat')
@@ -85,11 +106,9 @@ def chat_client_connect():
     available_rooms = ['all']
     if api_response:
         available_rooms = api_response.json()
-    for room in rooms():
-        leave_room(room)
     join_room(available_rooms[0])
     mqtt.subscribe('%s/#'%rooms()[0])
-    emit('on_connect', {'log': 'Welcome to Docker-Chat! Feel free to roam around :)', 'rooms': available_rooms}, room=rooms()[0])
+    emit('on_connect', {'log': 'Welcome to Docker-Chat! Feel free to roam around :)', 'rooms': available_rooms})
 
 
 @socketio.on('disconnect', namespace='/chat')
