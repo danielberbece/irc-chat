@@ -1,14 +1,10 @@
 #!/usr/bin/python3
 from threading import Lock
-import eventlet
-from flask import Flask, render_template, session, request, \
-    copy_current_request_context
-# from flask_login import LoginManager, UserMixin, current_user, login_user, \
-#     logout_user
-from flask_socketio import SocketIO, emit, join_room, leave_room, \
-    close_room, rooms, disconnect
+from flask import Flask, render_template, session, request
+from flask_socketio import SocketIO, emit, join_room, leave_room, rooms
 from flask_mqtt import Mqtt
 from prometheus_flask_exporter import PrometheusMetrics
+import eventlet
 import random, string
 import requests
 
@@ -28,28 +24,10 @@ app.config['MQTT_BROKER_URL'] = 'mosquitto'
 app.config['MQTT_BROKER_PORT'] = 1883
 
 mqtt = Mqtt(app)
-# login_manager = LoginManager(app)
 socketio = SocketIO(app, async_mode=async_mode)
 
 metrics = PrometheusMetrics(app)
 metrics.info('chat_info', 'Application info', version='1.0.3')
-
-# class User(UserMixin, object):
-#     user_mapping = {}
-#     def __init__(self, id=None name=None, room=None):
-#         self.id = id
-#         self.name = name
-#         self.room = room
-#         user_mapping[id] = self
-    
-#     @staticmethod
-#     def get(id):
-#         return user_mapping[id]
-
-
-# @login.user_loader
-# def load_user(id):
-#     return User.get(id)
 
 @app.route('/')
 def index():
