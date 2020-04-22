@@ -1,0 +1,83 @@
+version: "3"
+services:
+  chat:
+    image: danielberbece/chat:latest
+    depends_on:
+      - mosquitto
+      - api
+    ports:
+      - 80:8080
+    networks:
+      - mqtt_net
+      - api_front_net
+      - prom_net
+
+  api:
+    image: danielberbece/api:latest
+    depends_on:
+      - db
+    networks:
+      - api_front_net
+      - db_net
+
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    networks:
+      - mqtt_net
+
+  db-adapter:
+    image: danielberbece/db-adapter:latest
+    depends_on:
+      - db
+      - mosquitto
+    environment:
+      - DEBUG_DATA_FLOW=${DEBUG_DATA_FLOW}
+    networks:
+      - mqtt_net
+      - db_net
+
+  db:
+    image: mysql
+    hostname: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=chat
+    volumes:
+      - ./mysql/config:/docker-entrypoint-initdb.d
+    networks:
+      - db_net
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/config:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - prom_net
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    deploy:
+      mode: global
+    networks:
+      - prom_net
+
+  grafana:
+    image: danielberbece/grafana-chat:latest
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    networks:
+      - mqtt_net
+      - db_net
+      - api_front_net
+      - prom_net
+
+networks:
+  mqtt_net:
+  db_net:
+  api_front_net:
+  prom_net:
