@@ -64,7 +64,7 @@ def join(message):
     join_room(message['room'])
     mqtt.subscribe('%s/#'%message['room'])
     emit('log',
-         {'data': 'Entered a new room: ' + message['room']}, room=rooms()[0])
+         {'data': 'User %s entered room :%s:'%(session['username'], message['room'])}, room=rooms()[0])
 
 
 @socketio.on('set_username', namespace='/chat')
