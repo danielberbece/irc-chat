@@ -6,7 +6,7 @@ services:
       - mosquitto
       - api
     ports:
-      - "8080:8080"
+      - 8080:8080
     networks:
       - mqtt_net
       - api_front_net
@@ -15,7 +15,7 @@ services:
   api:
     build: ./api
     ports:
-      - "8081:8081"
+      - 8081:8081
     depends_on:
       - db
     networks:
@@ -26,7 +26,7 @@ services:
     image: eclipse-mosquitto
     hostname: mosquitto
     ports:
-      - "1883:1883"
+      - 1883:1883
     networks:
       - mqtt_net
 
@@ -46,6 +46,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=secret
       - MYSQL_DATABASE=chat
+    volumes:
+      - ./mysql/config:/docker-entrypoint-initdb.d
+      - ./mysql/data:/var/lib/mysql
     networks:
       - db_net
 

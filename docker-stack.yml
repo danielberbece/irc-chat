@@ -1,6 +1,5 @@
 version: "3"
 services:
-
   chat:
     image: danielberbece/chat:latest
     depends_on:
@@ -48,8 +47,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=secret
       - MYSQL_DATABASE=chat
-    ports:
-      - 3306:3306
+    volumes:
+      - ./mysql/config:/docker-entrypoint-initdb.d
+      - ./mysql/data:/var/lib/mysql
     networks:
       - db_net
 
