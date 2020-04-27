@@ -35,7 +35,7 @@ services:
       - mqtt_net
       - db_net
 
-   db:
+  db:
     image: danielberbece/db-chat:latest
     environment:
       - MYSQL_ROOT_PASSWORD=secret
