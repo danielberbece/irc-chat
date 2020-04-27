@@ -47,11 +47,7 @@ services:
       - db_net
 
   prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus/config:/etc/prometheus/
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+    image: danielberbece/prom-chat:latest
     networks:
       - prom_net
 

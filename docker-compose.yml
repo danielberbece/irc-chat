@@ -47,13 +47,9 @@ services:
       - db_net
 
   prometheus:
-    image: prom/prometheus:latest
+    image: danielberbece/prom-chat:latest
     depends_on:
       - node-exporter
-    volumes:
-      - ./prometheus/config:/etc/prometheus/
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
       - 9090:9090
     networks:
@@ -65,7 +61,7 @@ services:
       - prom_net
 
   grafana:
-    build: ./grafana
+    image: danielberbece/grafana-chat:latest
     ports:
       - 3000:3000
     environment:
