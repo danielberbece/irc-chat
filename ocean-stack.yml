@@ -31,8 +31,6 @@ services:
     depends_on:
       - db
       - mosquitto
-    environment:
-      - DEBUG_DATA_FLOW=${DEBUG_DATA_FLOW}
     networks:
       - mqtt_net
       - db_net
