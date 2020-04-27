@@ -1,3 +1,6 @@
+CREATE DATABASE chat;
+USE chat;
+
 CREATE TABLE rooms (
     `room_no` int(11) NOT NULL AUTO_INCREMENT,
     `room_name` varchar(100) NOT NULL,

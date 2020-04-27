@@ -38,13 +38,11 @@ services:
       - db_net
 
   db:
-    image: mysql
+    image: danielberbece/db-chat:latest
     environment:
       - MYSQL_ROOT_PASSWORD=secret
-      - MYSQL_DATABASE=chat
     volumes:
-      - ./mysql/config:/docker-entrypoint-initdb.d
-      - ./mysql/data:/var/lib/mysql
+      - ./db/data:/var/lib/mysql
     networks:
       - db_net
 
