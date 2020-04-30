@@ -39,8 +39,6 @@ services:
     image: danielberbece/db-chat:latest
     environment:
       - MYSQL_ROOT_PASSWORD=secret
-    volumes:
-      - ./db/data:/var/lib/mysql
     networks:
       - db_net
 
